@@ -159,4 +159,3 @@ namespace Chicks.Core.Repository.EFCore
         }
     }
 }
-}
