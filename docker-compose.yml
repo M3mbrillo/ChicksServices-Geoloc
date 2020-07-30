@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+
+  sqldata:
+    image: mcr.microsoft.com/mssql/server:latest
+
+  nosqldata:
+    image: mongo
+
+  rabbitmq:
+    image: rabbitmq:3-management
+
+  chicks.api.geo:
+    image: ${DOCKER_REGISTRY-}chicksapigeo
+    build:
+      context: .
+      dockerfile: Chicks.Api.Geo/Dockerfile
+    depends_on:
+      - rabbitmq
+      - sqldata
+      - nosqldata
+
+  chicks.geocoder:
+    image: ${DOCKER_REGISTRY-}chicksgeocoder
+    build:
+      context: .
+      dockerfile: Chicks.Geocoder/Dockerfile
+    depends_on:
+      - rabbitmq

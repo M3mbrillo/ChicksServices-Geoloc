@@ -1,0 +1,42 @@
+version: '3.4'
+
+services:
+
+  sqldata:
+    environment:
+      - SA_PASSWORD=Pass@word
+      - ACCEPT_EULA=Y
+    ports:
+      - "5433:1433"
+    volumes:
+      - chicks-sqldata:/var/opt/mssql
+
+  nosqldata:
+    ports:
+      - "27017:27017"
+    volumes:
+      - chicks-nosqldata:/data/db
+
+  rabbitmq:
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+
+  chicks.api.geo:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=https://+:443;http://+:80
+    ports:
+      - "80"
+      - "443"
+    volumes:
+      - ${APPDATA}/ASP.NET/Https:/root/.aspnet/https:ro
+  chicks.geocoder:
+    volumes:
+      - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+
+volumes:
+  chicks-sqldata:
+    external: false
+  chicks-nosqldata:
+    external: false
