@@ -1,14 +1,17 @@
-﻿using MediatR;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace Chicks.Api.Geo.Application.Commands
+namespace Chicks.Geocoder.Application.Models
 {
-    public class CreateGeocoderRequestCommand
-        : IRequest<CreatedGeocoderRequestDto>
+    class QueueItemGeocodeRequest
     {
+        public int Id { get; set; }
+
+        public GeocodeRequest Request { get; set; }
+    }
+
+    class GeocodeRequest {
         public string City { get; set; }
         public string Country { get; set; }
         public string State { get; set; }

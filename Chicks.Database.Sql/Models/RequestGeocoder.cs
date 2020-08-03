@@ -17,7 +17,7 @@ namespace Chicks.Database.Sql.Models
 
         public string City { get; set; }
 
-        public string zipCode { get; set; }
+        public string ZipCode { get; set; }
 
         public string State { get; set; }
 

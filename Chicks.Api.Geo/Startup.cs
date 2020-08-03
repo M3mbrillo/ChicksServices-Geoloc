@@ -4,11 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Chicks.Database.Sql;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -30,6 +32,31 @@ namespace Chicks.Api.Geo
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMediatR(Assembly.GetExecutingAssembly());
+
+            services.AddDbContext<ChicksDbContext>(options => {
+                options.UseLazyLoadingProxies()
+                        .UseSqlServer(this.Configuration.GetConnectionString("ChicksSqlServer"));
+                //.UseSqlServer("Data Source=sqldata;Initial Catalog=Chicks;User Id=sa;Password=Pass@word");
+
+            }, ServiceLifetime.Scoped);
+
+            services.AddScoped<ChicksRepositoryProvider>();
+
+
+            // Maybe can be a good idea use a abstraction of more level to use rabbitmq as
+            // https://github.com/dotnet-architecture/eShopOnContainers/tree/dev/src/BuildingBlocks/EventBus/EventBusRabbitMQ
+            services.AddScoped<RabbitMQ.Client.IConnection>(x => {
+                var rabbitMQConfig = new Config.RabbitMQ();
+                this.Configuration.Bind("RabbitMQ", rabbitMQConfig);
+
+                var connectionFactory = new RabbitMQ.Client.ConnectionFactory() { 
+                    UserName = rabbitMQConfig.UserName,
+                    Password = rabbitMQConfig.Password,
+                    HostName = rabbitMQConfig.HostName
+                };
+
+                return connectionFactory.CreateConnection();
+            });            
 
             services.AddControllers();
 
@@ -56,6 +83,13 @@ namespace Chicks.Api.Geo
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<ChicksDbContext>();
+                context.Database.Migrate();
+            }
+
+
             app.UseStaticFiles();
 
             if (env.IsDevelopment())

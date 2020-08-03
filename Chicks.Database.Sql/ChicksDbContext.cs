@@ -13,6 +13,7 @@ namespace Chicks.Database.Sql
         public ChicksDbContext([NotNull] DbContextOptions options)
             : base(options)
         {
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

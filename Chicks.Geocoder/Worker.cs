@@ -19,10 +19,22 @@ namespace Chicks.Geocoder
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            var queue = new Application.RabbitMQClient();
+            var api = new Application.GeocoderApi();
+
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 await Task.Delay(1000, stoppingToken);
+
+                var message = queue.ReceiveMessage();
+
+                if (message == null)
+                    continue;
+
+                var result = await api.GetGeocoderAsync(message);
+
+                queue.PushGeocode(result);
             }
         }
     }
