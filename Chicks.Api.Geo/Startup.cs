@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Chicks.Database.NoSql;
 using Chicks.Database.Sql;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -16,6 +17,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
+using MongoDB.Driver;
 
 namespace Chicks.Api.Geo
 {
@@ -40,7 +42,20 @@ namespace Chicks.Api.Geo
 
             }, ServiceLifetime.Scoped);
 
-            services.AddScoped<ChicksRepositoryProvider>();
+            //The ideal is use a IChicksRepositoryProviderEF
+            services.AddScoped<ChicksRepositoryProviderEF>();
+
+            services.AddScoped<IMongoClient>((serviceProvider) => new MongoClient(this.Configuration.GetConnectionString("ChicksMongo")));
+
+            services.AddScoped<IMongoDatabase>((serviceProvider) => {
+
+                var client = serviceProvider.GetRequiredService<IMongoClient>();
+
+                return client.GetDatabase(this.Configuration.GetValue<string>("MongoDatabaseSettings:DatabaseName"));
+            });
+
+            //The ideal is use a IChicksReporyProviderMongo
+            services.AddScoped<ChicksRepositoryProviderMongo>();
 
 
             // Maybe can be a good idea use a abstraction of more level to use rabbitmq as
@@ -83,12 +98,12 @@ namespace Chicks.Api.Geo
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // Migrator sql server
             using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
             {
                 var context = serviceScope.ServiceProvider.GetRequiredService<ChicksDbContext>();
                 context.Database.Migrate();
             }
-
 
             app.UseStaticFiles();
 

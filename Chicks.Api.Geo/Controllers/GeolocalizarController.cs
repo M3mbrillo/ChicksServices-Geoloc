@@ -8,6 +8,8 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Chicks.Api.Geo.Application.Commands;
+using Chicks.Api.Geo.Application.Queries;
+using Chicks.Database.NoSql.Models;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -47,13 +49,18 @@ namespace Chicks.Api.Geo.Controllers
         }
 
 
-        //[HttpGet]
-        //[ProducesResponseType(StatusCodes.Status200OK)]
-        //[ProducesResponseType(StatusCodes.Status400BadRequest)]
-        //public async Task<ActionResult<RegisteredRequestGeocoder>> GetGeolocalizarAsync([FromQuery][Required] int? id)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<GeocoderRequestResult>> GetGeolocalizarAsync([FromQuery][Required] int? id)
+        {
+            if (!id.HasValue)
+                return BadRequest();
+
+            var r = await this.Mediator.Send(new GetGeocoderQuery() { Id = id.Value });
+
+            return Ok(r);
+        }
 
     }
 }

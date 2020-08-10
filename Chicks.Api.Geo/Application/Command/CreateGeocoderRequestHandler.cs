@@ -1,4 +1,5 @@
-﻿using Chicks.Database.Sql;
+﻿using Chicks.Database.NoSql;
+using Chicks.Database.Sql;
 using Chicks.Database.Sql.Models;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
@@ -13,16 +14,23 @@ namespace Chicks.Api.Geo.Application.Commands
     public class CreateGeocoderRequestHandler
         : IRequestHandler<CreateGeocoderRequestCommand, CreatedGeocoderRequestDto>
     {
-        private readonly ChicksRepositoryProvider provider;
+        private readonly ChicksRepositoryProviderEF providerSql;
+        private readonly ChicksRepositoryProviderMongo providerMongo;
 
-        public CreateGeocoderRequestHandler(ChicksRepositoryProvider provider)
+        public CreateGeocoderRequestHandler(
+            ChicksRepositoryProviderEF providerSql,
+            ChicksRepositoryProviderMongo providerMongo)
         {
-            this.provider = provider;
+            this.providerSql = providerSql;
+            this.providerMongo = providerMongo;
         }
 
         public async Task<CreatedGeocoderRequestDto> Handle(CreateGeocoderRequestCommand request, CancellationToken cancellationToken)
         {
-            var result = await this.provider.RequestGeocoder.SaveAsync(new RequestGeocoder { 
+            //TODO move to Aggregate layer of a DDD 
+            // and encapsule the save in a sql and mongodb
+
+            var result = await this.providerSql.RequestGeocoder.SaveAsync(new RequestGeocoder { 
                 AtDateTime = DateTime.Now,
                 City = request.City,
                 Country = request.Country,
@@ -30,6 +38,12 @@ namespace Chicks.Api.Geo.Application.Commands
                 Street = request.Street,
                 Number = request.Number,
                 ZipCode = request.ZipCode
+            });
+
+            await this.providerMongo.GeocoderResult.SaveAsync(new Database.NoSql.Models.GeocoderResult
+            {
+                RequerestId = result.Id,
+                Estado = "PROCESANDO"
             });
 
             return new CreatedGeocoderRequestDto() { Id = result.Id };

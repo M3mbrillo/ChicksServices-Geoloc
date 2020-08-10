@@ -1,5 +1,4 @@
 ﻿using Chicks.Core.Repository.BaseModel;
-using Chicks.Core.Repositorys;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace Chicks.Core.Repository.EFCore
 {
+
+    // TODO refactor to implement IPK
     public class RepositoryEFBase<TEntity> : IRepositoryBase<TEntity>
-        where TEntity : class, IId
+        where TEntity : class, IId //IPK
     {
         protected DbContext context;
         protected DbSet<TEntity> dbSet;
@@ -69,15 +70,16 @@ namespace Chicks.Core.Repository.EFCore
 
         public bool Exist(int Id)
         {
-            return dbSet.Any(x => x.Id == Id);
+            throw new NotImplementedException();
+            //return dbSet.Any(x => x.MatchPk<TEntity>());
         }
 
         public bool Exist(TEntity entity)
         {
-            if (entity == null || entity.Id == 0)
+            if (entity == null)
                 return false;
 
-            return Exist(entity.Id);
+            return dbSet.Any(x => x.Id == entity.Id);
         }
 
 
@@ -87,7 +89,7 @@ namespace Chicks.Core.Repository.EFCore
             => dbSet.SingleOrDefault(x => x.Id == id);
 
         public virtual TEntity Get(int? id)
-            => id.HasValue ? dbSet.SingleOrDefault(x => x.Id == id.Value) : null;
+            => id.HasValue ? dbSet.SingleOrDefault(x => x.Id == id) : null;
 
 
         private void SaveAttach(TEntity entity)

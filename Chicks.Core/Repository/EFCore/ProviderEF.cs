@@ -1,6 +1,5 @@
 ﻿using Chicks.Core.Repository.BaseModel;
 using Chicks.Core.Repository.Providers;
-using Chicks.Core.Repositorys;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -47,12 +46,14 @@ namespace Chicks.Core.Repository.EFCore
 
         IRepositoryBase IRepositoryProvider.Provider<tEntity>()
         {
-            return this.Provider<tEntity>();
+            //return this.Provider<tEntity>();
+            throw new NotImplementedException();
         }
 
         tRepo IRepositoryProvider.Provider<tRepo, tEntity>()
         {
-            return this.Provider<tRepo, tEntity>();
+            //return this.Provider<tRepo, tEntity>();
+            throw new NotImplementedException();
         }
     }
 }

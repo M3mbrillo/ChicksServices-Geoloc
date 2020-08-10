@@ -8,7 +8,9 @@ namespace Chicks.Api.Geo.Application.Queries
     public class GeocoderRequestResult
     {
         public int Id { get; set; }
-        public decimal Latitude { get; set; }
-        public decimal Longitude { get; set; }
-    }
+        public decimal? Latitude { get; set; }
+        public decimal? Longitude { get; set; }
+        public string Estado { get; set; }
+        public string UrlGoogleMap { get; internal set; }
+    }        
 }

@@ -19,6 +19,9 @@ namespace Chicks.Geocoder
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            //TODO make a IEventBus and deprecate Application.RabbitMQClient();
+            //https://github.com/dotnet-architecture/eShopOnContainers/tree/dev/src/BuildingBlocks/EventBus
+
             var queue = new Application.RabbitMQClient();
             var api = new Application.GeocoderApi();
 

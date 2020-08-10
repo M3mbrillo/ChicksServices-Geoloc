@@ -4,10 +4,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Chicks.Core.Repositorys
+namespace Chicks.Core.Repository
 {
+    // TODO send cancelation token in the async method
+    // refactor IId to <IPK> and suport any PK definition
     public interface IRepositoryBase<TEntity> : IRepositoryBase
-       where TEntity : class, IId
+       where TEntity : class, IPK
     {
         public IEnumerable<TEntity> Get();
 
@@ -27,7 +29,8 @@ namespace Chicks.Core.Repositorys
 
 
         #region hide non-generic accesor of RepositoryBase, C# 8 allow implements on interface
-        bool IRepositoryBase.Exist(object entity) => this.Exist((entity as TEntity).Id);
+        //bool IRepositoryBase.Exist(object entity) => this.Exist((entity as TEntity).Id);
+        bool IRepositoryBase.Exist(object entity) => this.Exist((entity as TEntity));
         bool IRepositoryBase.Exist(int id) => this.Exist(id);
 
         async Task<object> IRepositoryBase.SaveAsync(object entity) => await this.SaveAsync(entity as TEntity);

@@ -6,9 +6,9 @@ using System.Text;
 
 namespace Chicks.Database.Sql
 {
-    public class ChicksRepositoryProvider : ProviderEF<ChicksDbContext>
+    public class ChicksRepositoryProviderEF : ProviderEF<ChicksDbContext>
     {
-        public ChicksRepositoryProvider(ChicksDbContext dbContext) 
+        public ChicksRepositoryProviderEF(ChicksDbContext dbContext) 
             : base(dbContext)
         {
         }

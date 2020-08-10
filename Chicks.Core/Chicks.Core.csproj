@@ -6,11 +6,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.6" />
+    <PackageReference Include="MongoDB.Driver" Version="2.11.0" />
     <PackageReference Include="Nominatim.API" Version="1.5.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Repository\Mongo\" />
   </ItemGroup>
 
 </Project>
